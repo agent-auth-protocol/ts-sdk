@@ -1,4 +1,4 @@
-# @agentauth/ts-sdk 🛡️
+# @agent-auth-protocol/ts-sdk 🛡️
 
 **The official TypeScript verifier for the AgentAuth M2M Protocol.**
 
@@ -7,13 +7,13 @@ Designed for edge networks (Cloudflare Workers, Vercel Edge) and Node.js environ
 ## 📦 Installation
 
 ```bash
-npm install @agentauth/ts-sdk jose
+npm install @agent-auth-protocol/ts-sdk jose
 ```
 
 ## 🚀 Quick Start
 
 ```typescript
-import { AgentAuthVerifier } from '@agentauth/ts-sdk';
+import { AgentAuthVerifier } from '@agent-auth-protocol/ts-sdk';
 
 // 1. Initialize with your Auth Server's public key (Ed25519)
 const verifier = new AgentAuthVerifier(process.env.AGENT_AUTH_PUBLIC_KEY);
@@ -34,4 +34,5 @@ async function handleAgentRequest(req) {
 ```
 
 ---
+
 *Built for the Agentic Era. Part of the AgentAuth Protocol Suite.*
