@@ -1,36 +1,46 @@
-name: CI/CD Pipeline
+name: Release and Publish
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
 jobs:
-  release:
-    name: Build & Release
+  release-please:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required to push tags and changelog
-      issues: write
-      pull-requests: write
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - id: release
+        uses: googleapis/release-please-action@v4
         with:
-          fetch-depth: 0
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+  publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@agent-auth-protocol'
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
 
-      - name: Compile TypeScript
-        run: npm run build
-
-      - name: Semantic Release
+      - name: Publish to GitHub Packages
+        run: npm publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
