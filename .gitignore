@@ -1,0 +1,18 @@
+# Dependency directories
+node_modules/
+
+# Build output
+# (Note: We are leaving dist/ un-ignored for this prototype so onlookers can see the compiled JS)
+
+# Environment variables
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
