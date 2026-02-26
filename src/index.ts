@@ -1,58 +1,66 @@
-import * as jose from 'jose'
-import { AgentAuthError } from './errors'
-
-export { AgentAuthError }
+import { importJWK, jwtVerify, JWTPayload } from 'jose'
+import { ConfigurationError, TokenValidationError } from './errors'
 
 export interface VerificationResult {
   isValid: boolean
-  agentId?: string
-  expiresAt?: Date
+  agentId: string
+  payload: JWTPayload
 }
 
-/**
- * AgentAuthVerifier ensures that Machine-to-Machine (M2M)
- * JWTs issued by the AgentAuth core protocol are cryptographically valid.
- */
 export class AgentAuthVerifier {
-  private publicKey: Uint8Array
+  private publicKeyHex: string
 
-  /**
-   * Initialize the verifier with the Ed25519 public key from the Auth Server.
-   * @param publicKeyHex The hex-encoded Ed25519 public key.
-   */
-  constructor(publicKeyHex: string) {
-    if (!publicKeyHex || publicKeyHex.length !== 64) {
-      throw new AgentAuthError('Invalid public key format. Expected 64-character hex string.')
+  constructor(publicKeyHex: string | undefined) {
+    if (!publicKeyHex) {
+      throw new ConfigurationError('Public key is required to initialize the verifier.')
     }
-    this.publicKey = new Uint8Array(Buffer.from(publicKeyHex, 'hex'))
+
+    // Strip prefix if the user accidentally included '0x'
+    const cleanHex = publicKeyHex.replace(/^0x/, '').toLowerCase()
+
+    if (!/^[0-9a-f]{64}$/.test(cleanHex)) {
+      throw new ConfigurationError('Invalid public key format. Expected a 64-character hex string.')
+    }
+
+    this.publicKeyHex = cleanHex
   }
 
-  /**
-   * Verifies an AgentAuth JWT.
-   * @param token The JWT string provided by the AI agent.
-   * @returns VerificationResult containing the agent's ID and token expiration.
-   */
+  // Internal helper to convert raw hex to the Base64URL format required by JWK
+  private hexToBase64Url(hex: string): string {
+    return Buffer.from(hex, 'hex').toString('base64url')
+  }
+
   public async verifyToken(token: string): Promise<VerificationResult> {
+    if (!token) {
+      throw new TokenValidationError('No token provided')
+    }
+
     try {
-      // Verify the EdDSA signature and check expiration (exp) automatically
-      const { payload } = await jose.jwtVerify(token, this.publicKey, {
-        algorithms: ['EdDSA'],
-        audience: 'agent-infrastructure',
-      })
+      // 1. Convert the raw hex key into a universal JSON Web Key internally
+      const jwk = {
+        kty: 'OKP',
+        crv: 'Ed25519',
+        x: this.hexToBase64Url(this.publicKeyHex),
+      }
+
+      // 2. Import the key and verify the token
+      const publicKey = await importJWK(jwk, 'EdDSA')
+      const { payload } = await jwtVerify(token, publicKey)
+
+      if (!payload.sub) {
+        throw new TokenValidationError("Token is missing 'sub' (agentId) claim")
+      }
 
       return {
         isValid: true,
         agentId: payload.sub,
-        expiresAt: payload.exp ? new Date(payload.exp * 1000) : undefined,
+        payload,
       }
-    } catch (error) {
-      if (error instanceof jose.errors.JWTExpired) {
-        throw new AgentAuthError('Agent token has expired. Request a new ephemeral token.')
+    } catch (error: any) {
+      if (error.code === 'ERR_JWT_EXPIRED') {
+        throw new TokenValidationError('Token has expired')
       }
-      if (error instanceof jose.errors.JWSInvalid) {
-        throw new AgentAuthError('Cryptographic signature verification failed.')
-      }
-      throw new AgentAuthError(`Token verification failed: ${(error as Error).message}`)
+      throw new TokenValidationError(`Token verification failed: ${error.message}`)
     }
   }
 }
