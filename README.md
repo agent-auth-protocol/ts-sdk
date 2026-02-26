@@ -4,7 +4,7 @@
 
 Designed for edge networks (Cloudflare Workers, Vercel Edge) and Node.js environments. This SDK allows your API gateways and infrastructure to cryptographically verify short-lived agent JWTs in just two lines of code, preventing unauthorized LLMs from accessing your data.
 
-## Flow
+## 🏗️ Flow
 
 ```mermaid
 sequenceDiagram
