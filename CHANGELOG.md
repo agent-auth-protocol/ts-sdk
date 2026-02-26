@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/agent-auth-protocol/ts-sdk/compare/ts-sdk-v0.1.2...ts-sdk-v0.1.3) (2026-02-26)
+
+
+### Bug Fixes
+
+* force new release to trigger npm publish ([fad383f](https://github.com/agent-auth-protocol/ts-sdk/commit/fad383f08c2cb299f16f01dbd3b15502bee63d02))
+
 ## [0.1.2](https://github.com/agent-auth-protocol/ts-sdk/compare/ts-sdk-v0.1.1...ts-sdk-v0.1.2) (2026-02-25)
 
 
