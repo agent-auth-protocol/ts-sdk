@@ -2,6 +2,17 @@
   "name": "@agent-auth-protocol/ts-sdk",
   "version": "0.1.4",
   "description": "Zero-dependency TypeScript SDK for the AgentAuth M2M Protocol",
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "m2m",
+    "jwt",
+    "ed25519",
+    "api-gateway",
+    "zero-trust",
+    "ai-agents",
+    "security"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

@@ -1,5 +1,9 @@
 # @agent-auth-protocol/ts-sdk 🛡️
 
+[![NPM Version](https://img.shields.io/npm/v/@agent-auth-protocol/ts-sdk?color=blue&style=flat-square)](https://www.npmjs.com/package/@agent-auth-protocol/ts-sdk)
+[![NPM Downloads](https://img.shields.io/npm/dt/@agent-auth-protocol/ts-sdk?color=success&style=flat-square)](https://www.npmjs.com/package/@agent-auth-protocol/ts-sdk)
+[![License](https://img.shields.io/npm/l/@agent-auth-protocol/ts-sdk?style=flat-square)](https://github.com/agent-auth-protocol/ts-sdk/blob/main/LICENSE)
+
 **The official TypeScript verifier for the AgentAuth M2M Protocol.**
 
 Designed for edge networks (Cloudflare Workers, Vercel Edge) and Node.js environments. This SDK allows your API gateways and infrastructure to cryptographically verify short-lived agent JWTs in just two lines of code, preventing unauthorized LLMs from accessing your data.
